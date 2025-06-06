@@ -37,7 +37,11 @@ class GetStarted extends StatelessWidget {
 
                   Text(
                     'Find it here, buy it now!',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
                   SizedBox(height: 16),

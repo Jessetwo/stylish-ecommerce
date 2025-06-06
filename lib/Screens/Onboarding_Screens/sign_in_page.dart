@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:stylish/API_service/api_service.dart';
 import 'package:stylish/Components/my_textfield.dart';
 import 'package:stylish/Components/mybutton.dart';
+import 'package:stylish/Models/user_model.dart';
 import 'package:stylish/Screens/Onboarding_Screens/forgot_password.dart';
 import 'package:stylish/Screens/Onboarding_Screens/sign_up_page.dart';
+// Placeholder for home screen
+import 'package:flutter/widgets.dart';
+import 'package:stylish/Screens/main_Screens/Home_page.dart'; // Replace with actual home page import
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -12,16 +17,82 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  final ApiService apiService = ApiService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   void dispose() {
-    //Dispose all controllers
-
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final user = await apiService.login(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Logged in successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Navigate to home page (replace with your actual home page)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      print('Login error: $e');
+
+      String errorMessage = 'Failed to login. Please try again.';
+      if (e.toString().contains('Method not allowed')) {
+        errorMessage = 'Invalid API configuration. Please contact support.';
+      } else if (e.toString().contains('Invalid email or password')) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (e.toString().contains('SocketException')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else if (e.toString().contains('Failed to login')) {
+        errorMessage = e.toString().replaceFirst(
+          'Exception: Failed to login: ',
+          '',
+        );
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -38,10 +109,9 @@ class _SignInPageState extends State<SignInPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [Image.asset('assets/logo.png', width: 200)],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 const Text('Login to Account', style: TextStyle(fontSize: 24)),
                 const SizedBox(height: 16),
-
                 const SizedBox(height: 10),
                 MyTextfield(
                   controller: emailController,
@@ -57,7 +127,7 @@ class _SignInPageState extends State<SignInPage> {
                   pre: const Icon(Icons.lock),
                   obscureText: true,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -66,11 +136,11 @@ class _SignInPageState extends State<SignInPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ForgotPassword(),
+                            builder: (context) => const ForgotPassword(),
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Forgot Password?',
                         style: TextStyle(
                           fontSize: 16,
@@ -81,58 +151,59 @@ class _SignInPageState extends State<SignInPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                //the login button
-                const Mybutton(title: 'Login'),
-                SizedBox(height: 75),
+                isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFF83758),
+                      ),
+                    )
+                    : Mybutton(title: 'Login', ontap: _login),
+                const SizedBox(height: 75),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                  children: const [
                     Text('- OR Login with -', style: TextStyle(fontSize: 18)),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Google login
                     Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                         color: Colors.white,
-                        border: Border.all(color: Color(0xFFF83758)),
+                        border: Border.all(color: const Color(0xFFF83758)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [Image.asset('assets/google.png')],
                       ),
                     ),
-                    //apple login
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                         color: Colors.white,
-                        border: Border.all(color: Color(0xFFF83758)),
+                        border: Border.all(color: const Color(0xFFF83758)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [Image.asset('assets/apple.png')],
                       ),
                     ),
-                    SizedBox(width: 10),
-
-                    //facebook login
+                    const SizedBox(width: 10),
                     Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                         color: Colors.white,
-                        border: Border.all(color: Color(0xFFF83758)),
+                        border: Border.all(color: const Color(0xFFF83758)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -141,23 +212,25 @@ class _SignInPageState extends State<SignInPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Don\'t have an Account?',
                       style: TextStyle(fontSize: 16),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => SignUpPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Sign up',
                         style: TextStyle(
                           fontSize: 16,
