@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:stylish/Models/product_model.dart';
 import 'package:stylish/Models/user_model.dart';
 
 class ApiService {
@@ -76,6 +77,33 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error during login: $e');
+    }
+  }
+
+  // Fetch products
+  Future<List<Product>> fetchProducts() async {
+    final url = Uri.parse(
+      'https://x8ki-letl-twmt.n7.xano.io/api:t6rLUCEm/product',
+    ); // Adjust endpoint if needed
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+
+        // Convert each item in the list to a Product object
+        List<Product> products =
+            jsonList.map((json) => Product.fromMap(json)).toList();
+
+        return products;
+      } else {
+        print('Failed to fetch products. Status code: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Exception occurred while fetching products: $e');
+      return [];
     }
   }
 }
