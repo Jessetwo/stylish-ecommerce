@@ -4,6 +4,7 @@ import 'package:stylish/API_service/api_service.dart';
 import 'package:stylish/Components/product_card.dart';
 import 'package:stylish/Screens/main_Screens/cart_page.dart';
 import 'package:stylish/Screens/main_Screens/orders_page.dart';
+import 'package:stylish/Screens/main_Screens/product_details.dart';
 import 'package:stylish/Screens/main_Screens/profile_page.dart';
 import 'package:stylish/Screens/main_Screens/wish_list.dart';
 import 'package:stylish/Models/product_model.dart';
@@ -85,6 +86,13 @@ class _HomeContentState extends State<HomeContent> {
   void initState() {
     super.initState();
     _productsFuture = apiService.fetchProducts();
+  }
+
+  Future<void> _refreshProducts() async {
+    setState(() {
+      _productsFuture = apiService.fetchProducts();
+    });
+    await Future.delayed(const Duration(milliseconds: 500));
   }
 
   @override
@@ -174,43 +182,62 @@ class _HomeContentState extends State<HomeContent> {
             const SizedBox(height: 16),
             // PRODUCTS LIST
             Expanded(
-              child: FutureBuilder<List<Product>>(
-                future: _productsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFFF83758),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No products found.'));
-                  } else {
-                    final products = snapshot.data!;
-                    return GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                      itemCount: products.length,
-                      itemBuilder: (context, index) {
-                        final product = products[index];
-                        return ProductCard(
-                          title: product.name,
-                          image:
-                              product
-                                  .imageUrl, // you can update this to use product.image if available
-                          price: product.price,
-                        );
-                      },
-                    );
-                  }
-                },
+              child: RefreshIndicator(
+                color: Color(0xFFF83758),
+                onRefresh: _refreshProducts,
+                child: FutureBuilder<List<Product>>(
+                  future: _productsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFF83758),
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No products found.'));
+                    } else {
+                      final products = snapshot.data!;
+                      return GridView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          final product = products[index];
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => ProductDetails(
+                                        imageUrl: product.imageUrl,
+                                        productName: product.name,
+                                        description: product.description ?? '',
+                                        price: product.price,
+                                      ),
+                                ),
+                              );
+                            },
+                            child: ProductCard(
+                              title: product.name,
+                              image: product.imageUrl,
+                              price: product.price,
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ],

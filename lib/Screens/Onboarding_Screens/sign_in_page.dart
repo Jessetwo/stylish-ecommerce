@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:stylish/API_service/api_service.dart';
 import 'package:stylish/Components/my_textfield.dart';
 import 'package:stylish/Components/mybutton.dart';
-import 'package:stylish/Models/user_model.dart';
 import 'package:stylish/Screens/Onboarding_Screens/forgot_password.dart';
 import 'package:stylish/Screens/Onboarding_Screens/sign_up_page.dart';
-// Placeholder for home screen
 import 'package:flutter/widgets.dart';
-import 'package:stylish/Screens/main_Screens/Home_page.dart'; // Replace with actual home page import
+import 'package:stylish/Screens/main_Screens/Home_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -47,11 +45,6 @@ class _SignInPageState extends State<SignInPage> {
     });
 
     try {
-      final user = await apiService.login(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-
       setState(() {
         isLoading = false;
       });

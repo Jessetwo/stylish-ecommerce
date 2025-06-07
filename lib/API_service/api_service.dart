@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:stylish/Models/product_model.dart';
 import 'package:stylish/Models/user_model.dart';
@@ -15,8 +13,6 @@ class ApiService {
     required String email,
     required String password,
   }) async {
-    final client =
-        HttpClient()..badCertificateCallback = (cert, host, port) => true;
     final httpClient = http.Client();
     try {
       final response = await httpClient.post(

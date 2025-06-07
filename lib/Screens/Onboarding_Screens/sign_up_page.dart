@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:stylish/API_service/api_service.dart';
 import 'package:stylish/Components/my_textfield.dart';
 import 'package:stylish/Components/mybutton.dart';
-import 'package:stylish/Models/user_model.dart';
 import 'package:stylish/Screens/Onboarding_Screens/sign_in_page.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -46,12 +45,6 @@ class _SignUpPageState extends State<SignUpPage> {
     });
 
     try {
-      final user = await apiService.signUp(
-        name: userNameController.text.trim(),
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-
       setState(() {
         isLoading = false;
       });
